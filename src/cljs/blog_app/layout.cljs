@@ -1,26 +1,44 @@
 (ns blog-app.layout
-  (:require [blog-app.routing :refer [path-for]]))
+  (:require [blog-app.routing :refer [path-for]]
+            [reagent.session :as session]
+            [blog-app.articles.article-content :refer [content-store]]))
 (path-for :about)
 (path-for :posts)
 (path-for :post)
+
 (defn home-page []
   (fn []
-    [:span
-     [:h1 {:class ""} "Welcome to thee sblog-app"]
+    [:span.main
+     [:h1.avenir "Welcome to blog-app"]
      [:ul
       [:li [:a {:href (path-for :posts)} "Items of blog-app"]]
       [:li [:a {:href "/broken/link"} "Broken link"]]]]))
 
 
+(def content-list (get-in content-store [:content]))
+
+
+; (defn items-page []
+;   (fn []
+;     [:span.main
+;      [:h1 "The items of blog-app"]
+;      [:ul (map (fn [content-list]
+;                  [:li {:name (:title content-list) :key (str "item-" item-id)}
+;                   [:a {:href (path-for :post {:post-id item-id})} "Item: " item-id]])
+;                (range 1 60))]]))
+
 
 (defn items-page []
   (fn []
     [:span.main
-     [:h1.avenir "The items of blogs-app"]
-     [:ul (map (fn [item-id]
-                 [:li {:name (str "item-" item-id) :key (str "item-" item-id)}
-                  [:a {:href (path-for :post {:post-id item-id})} "Item: " item-id]])
-               ["a" "b"])]]))
+     [:h1 "The items of blog-app"]
+     (for [item content-list]
+       (let [kw (first item)
+             data (second item)]
+         ^{:key kw}
+         [:div
+          [:div (:title item)] 
+          [:a {:href (:url data)}]]))]))
 
 
 (defn item-page []
