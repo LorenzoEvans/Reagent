@@ -16,8 +16,7 @@
    [:meta {:charset "utf-8"}]
    [:meta {:name "viewport"
            :content "width=device-width, initial-scale=1"}]
-   [:link {:href "../node_modules/tachyons/css/tachyons.min.css" :rel "stylesheet" :type "text/css"}]
-   (include-css  "/css/site.css" "/css/site.min.css" "https://unpkg.com/tachyons@4.10.0/css/tachyons.min.css")])
+   (include-css  "https://unpkg.com/tachyons@4.10.0/css/tachyons.min.css")])
 
 (defn loading-page []
   (html5
@@ -38,10 +37,10 @@
   (reitit-ring/ring-handler
    (reitit-ring/router
     [["/" {:get {:handler index-handler}}]
-     ["/items"
+     ["/posts"
       ["" {:get {:handler index-handler}}]
-      ["/:item-id" {:get {:handler index-handler
-                          :parameters {:path {:item-id int?}}}}]]
+      ["/:post-id" {:get {:handler index-handler
+                          :parameters {:path {:post-id int?}}}}]]
      ["/about" {:get {:handler index-handler}}]])
    (reitit-ring/routes
     (reitit-ring/create-resource-handler {:path "/" :root "/public"})

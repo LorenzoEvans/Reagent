@@ -1,9 +1,7 @@
 (ns blog-app.core
   (:require
-   [blog-app.layout :refer [home-page
-                            items-page
-                            item-page
-                            about-page]]
+   [blog-app.layout]
+   [blog-app.routing :refer [path-for router]]
    [reagent.core :as reagent :refer [atom]]
    [reagent.session :as session]
    [reitit.frontend :as reitit]
@@ -13,24 +11,43 @@
 ;; -------------------------
 ;; Routes
 
-(def router
-  (reitit/router
-   [["/" :index]
-    ["/items"
-     ["" :items]
-     ["/:item-id" :item]]
-    ["/about" :about]]))
 
-(defn path-for [route & [params]]
-  (if params
-    (:path (reitit/match-by-name router route params))
-    (:path (reitit/match-by-name router route))))
 
-(path-for :about)
 ;; -------------------------
 ;; Page components
 
+(defn home-page []
+  (fn []
+    [:span.main
+     [:h1.avenir "Welcome to blog-app"]
+     [:ul
+      [:li [:a {:href (path-for :posts)} "Items of blog-app"]]
+      [:li [:a {:href "/broken/link"} "Broken link"]]]]))
 
+
+
+(defn items-page []
+  (fn []
+    [:span.main
+     [:h1 "The items of blog-app"]
+     [:ul (map (fn [item-id]
+                 [:li {:name (str "item-" item-id) :key (str "item-" item-id)}
+                  [:a {:href (path-for :post {:post-id item-id})} "Item: " item-id]])
+               (range 1 60))]]))
+
+
+(defn item-page []
+  (fn []
+    (let [routing-data (session/get :route)
+          item (get-in routing-data [:route-params :post-id])]
+      [:span.main
+       [:h1 (str "Item " item " of blog-app")]
+       [:p [:a {:href (path-for :posts)} "Back to the list of items"]]])))
+
+
+(defn about-page []
+  (fn [] [:span.main
+          [:h1 "About blog-app"]]))
 
 
 ;; -------------------------
@@ -40,8 +57,8 @@
   (case route
     :index #'home-page
     :about #'about-page
-    :posts #'posts-page
-    :post #'post-page))
+    :posts #'items-page
+    :post #'item-page))
 
 
 ;; -------------------------
